@@ -28,6 +28,7 @@ distribution.
 #include <string>
 #include <stdio.h>
 #include <assert.h>
+#include <cstring>
 
 class TiXmlDocument;
 class TiXmlElement;
