@@ -17,6 +17,12 @@ float vctInnerProduct(Vector *v1, Vector *v2) {
   return (float)v1->x*v2->x + (float)v1->y*v2->y;
 }
 
+float lerp(float a, float b, float f)
+{
+	return (a * (1.0 - f)) + (b * f);
+}
+
+
 Vector vctGetElement(Vector *v1, Vector *v2) {
   Vector ans;
   int ll = v2->x*v2->x + v2->y*v2->y;

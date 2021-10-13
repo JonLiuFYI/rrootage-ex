@@ -5,10 +5,9 @@
 #include "bulletmlcommon.h"
 
 #include <string>
-
 #include <memory>
 
-DECLSPEC std::auto_ptr<Formula<double> > calc(const std::string& str);
+DECLSPEC std::shared_ptr<Formula<double> > calc(const std::string& str);
 
 #endif // CALC_H_
 

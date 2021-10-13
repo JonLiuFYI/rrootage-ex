@@ -23,6 +23,7 @@
 #include "soundmanager.h"
 #include "degutil.h"
 #include "boss_mtd.h"
+#include "stdbool.h"
 
 int score;
 static int nextExtend, neAdd;
@@ -32,7 +33,7 @@ unsigned long seed;
 int bombUsed, shipUsed;
 int mode;
 
-static HiScore hiScore;
+static PersistentState hiScore;
 
 #define PREF_FILE "rr.prf"
 #define DEFAULT_HISCORE 100000
@@ -62,10 +63,21 @@ void loadPreference() {
   FILE *fp;
   int i, j;
   int version;
-  if ( NULL == (fp = fopen(PREF_FILE,"rb")) ) {
-    initHiScore();
-    return;
+#ifdef PLATFORM_NX
+
+  initHiScore();
+
+  load_game(&hiScore);
+  
+  return;
+
+#else
+  if (NULL == (fp = fopen(PREF_FILE, "rb"))) {
+  initHiScore();
+  return;
   }
+#endif
+  
   version = getw(fp);
   if ( version != VERSION_NUM ) {
     initHiScore();
@@ -84,6 +96,7 @@ void loadPreference() {
 
 // Save preference.
 void savePreference() {
+#ifndef PLATFORM_NX
   FILE *fp;
   int i, j;
   if ( NULL == (fp = fopen(PREF_FILE,"wb")) ) return;
@@ -97,6 +110,10 @@ void savePreference() {
   putw(hiScore.stage, fp);
   putw(hiScore.mode, fp);
   fclose(fp);
+#else
+
+    save_game(&hiScore);
+#endif
 }
 
 static void gotoNextScene() {
@@ -234,15 +251,18 @@ void drawRPanel() {
       break;
     }
   }
-  y = 24;
-  drawString(stageStr, 124+480, y, 24, 1, 200, 200, 222);
-  y += 24*1.7f*2;
-  drawLetter(38, 124+480, y, 24, 1, 200, 200, 222);
-  y += 24*1.7f;
-  drawNumRight(scene+1, 124+480, y, 24, 200, 200, 222);
+  y = 40;
+  drawString(stageStr, 124+480 - 95, y, 24, 0, 200, 200, 222);
+  //y += 24*1.7f*2;
+  drawLetter(38, 124+480 -20, y, 24, 0, 200, 200, 222);
+ // y += 24*1.7f;
+  drawNumCenter(scene + 1, 124 + 490, y, 24, 200, 200, 222);
+ // drawNumRight(scene+1, 124+480, y, 24, 200, 200, 222);
 }
 
 #define STG_BOX_SIZE 21
+#define CONFIG_BOX_SIZE 210
+#define CONFIG_BOX_HEIGHT 20
 #define STG_BOX_NUM (MODE_NUM+STAGE_NUM+1)
 
 #define LAYER_HEIGHT 480
@@ -268,6 +288,7 @@ void initAttractManager() {
 
 static int titleCnt;
 static int slcStg;
+static int slcConfig;
 static int mnp;
 
 int initTitleAtr() {
@@ -282,7 +303,7 @@ int initTitleAtr() {
 #define QUIT_STAGE_NUM 40
 
 void moveTitleMenu() {
-  int pad = getPadState();
+  int pad = getPadState().pad;
   int btn = getButtonState();
   int bs = slcStg;
   if ( pad & PAD_DOWN ) {
@@ -326,7 +347,8 @@ void moveTitleMenu() {
   }
   if ( mnp && (btn & PAD_BUTTON1) ) {
     if ( slcStg == QUIT_STAGE_NUM  ) {
-      quitLast();
+      //quitLast();
+        initConfigStage();
     } else if ( slcStg < 0 ) {
       mnp = 0;
       setMode(MODE_NUM+slcStg);
@@ -344,16 +366,95 @@ void moveTitleMenu() {
   titleCnt++;
 }
 
+char* configNames[] = { "SMOOTH JOYSTICK" , "BULLET TIME" , "BACK"};
+int CONFIG_COUNT = 3;
+
+int bSmoothJoystick = true;
+int bBulletTime = true;
+
+
+int mnpc = 0;
+void moveConfigMenu()
+{
+	int pad = getPadState().pad;
+	int btn = getButtonState();
+    if ((btn & PAD_BUTTON2) && mnpc)
+    {
+        status = TITLE;
+        
+        mnpc = 0;
+        mnp = 0;
+		//return;
+    }
+    else if ((btn & PAD_BUTTON1) && mnpc)
+    {
+        if (slcConfig == 0) // joystick
+        {
+            bSmoothJoystick = !bSmoothJoystick;
+        }
+        else if (slcConfig == 1) // btime
+        {
+            bBulletTime = !bBulletTime;
+           
+        }
+        else if (slcConfig == 2){
+            //initTitle();
+            status = TITLE;
+        }
+        mnpc = 0;
+        mnp = 0;
+       // return;
+    }
+    
+    
+    if (pad & PAD_DOWN) {
+        if (mnpc) {
+            if (slcConfig >= (CONFIG_COUNT -1))
+            {
+                slcConfig = 0;
+            }
+            else {
+                slcConfig = (slcConfig + 1);
+            }
+            
+            mnpc = 0;
+        }
+	}
+    else if (pad & PAD_UP) {
+        if (mnpc){
+			if (slcConfig <= 0)
+			{
+				slcConfig = CONFIG_COUNT-1;
+			}
+			else {
+				slcConfig = (slcConfig - 1);
+			}
+            mnpc = 0;
+        }
+	}
+	else if (btn == 0) {
+        mnpc = 1;
+	}
+}
+
 void drawTitle() {
+
+   
+
   int i;
   int r, g, b;
   int sx, sy;
   char *stgChr = "STAGE";
-  char *quitChr = "QUIT";
+  char *quitChr = "SETTINGS";
   char *mdChr[] = {"NORMAL MODE", "PSY MODE", "IKA MODE", "GW MODE"};
   int mdChrX[] = {270, 330, 330, 350};
   char mdIni[] = {'N', 'P', 'I', 'G'}; 
   drawTitleBoard();
+
+  int offsetx = -310;
+  int offsety = 200;
+  int sizechange = -2;
+
   for ( i=-MODE_NUM ; i<STAGE_NUM+1 ; i++ ) {
     if ( i < 0 ) {
       if ( 4+i == mode ) {
@@ -374,17 +475,32 @@ void drawTitle() {
       sz = sz*3/5;
       if ( i < 0 ) {
 	int md = MODE_NUM+i;
-	drawString(mdChr[md], mdChrX[md], 133, 12, 0, 150, 150, 200);
+
+
+	drawString(mdChr[md], /*mdChrX[md] */270  + offsetx + 50, 133 + offsety, 12 + sizechange + -1, 0, 150, 150, 200);
 	drawLetter(mdIni[md]-'A'+10, sx, sy, sz, 0, 150, 150, 240);
+
+
       } else if ( i < QUIT_STAGE_NUM  ) {
 	makeStageStr(i);
+
+    
+
+    //level number in the box
 	drawString(stageStr, sx-sz, sy, sz, 0, 210, 210, 240);
-	drawString(stgChr, 330, 133, 12, 0, 210, 210, 240);
-	drawString(stageStr, 445, 133, 12, 0, 210, 210, 240);
-	drawNumCenter(hiScore.score[mode][i], 466, 168, 12, 210, 210, 240);
+
+    
+    //message and score
+	drawString(stgChr, 330 + offsetx, 133 + offsety, 12+ sizechange, 0, 210, 210, 240);
+	drawString(stageStr, 420 + offsetx, 133 + offsety, 12+ sizechange, 0, 210, 210, 240);
+	drawNumCenter(hiScore.score[mode][i], 440 + offsetx , 180 + offsety, 12+ sizechange, 210, 210, 240);
+
+    //separator line
+    drawBox(80, 355, 80, 1, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+
       } else {
-	drawLetter('Q'-'A'+10, sx, sy, sz, 0, 210, 210, 240);
-	drawString(quitChr, 410, 133, 12, 0, 210, 210, 240);
+	drawLetter('S'-'A'+10, sx, sy, sz, 0, 210, 210, 240);
+	drawString(quitChr, 350 + offsetx - 20, 133 + offsety, 12 - 2, 0, 210, 210, 240);
       }
     } else {
       drawBox(sx, sy, STG_BOX_SIZE/2, STG_BOX_SIZE/2, r*2/3, g*2/3, b*2/3);
@@ -393,12 +509,129 @@ void drawTitle() {
   drawString(mdChr[mode], mdChrX[mode], 455, 12, 0, 150, 150, 200);
 }
 
+
+
+void drawConfig() {
+
+	int i;
+	int r, g, b;
+	int sx, sy;
+	char* stgChr = "STAGE";
+	char* quitChr = "QUIT GAME";
+	char* mdChr[] = { "SETTINGS" };
+	int mdChrX[] = { 270, 330, 330, 350 };
+	char mdIni[] = { 'N', 'P', 'I', 'G' };
+	drawTitleBoard();
+
+	int offsetx = -310;
+	int offsety = 200;
+	int sizechange = -2;
+
+	//for (i = -MODE_NUM; i < STAGE_NUM + 1; i++) {
+    for (i = 0; i < CONFIG_COUNT; i++) {
+		
+		if (i == CONFIG_COUNT - 1) {
+			r = 240; g = 180; b = 180;
+		}
+		else {
+			r = 210; g = 210; b = 240;
+		}
+		sx = stageX[0] + 90;  
+        sy = 200 + (i * CONFIG_BOX_HEIGHT * 3);//stageY[i * 4 + MODE_NUM] * 2 + 0;
+		//if (i == slcConfig) {
+		//	int sz = CONFIG_BOX_SIZE * 3 / 2;
+		//	if (titleCnt < 16) sz = sz * titleCnt / 16;
+		//	//drawBox(sx, sy, sz, sz, r, g, b);
+		//	sz = sz * 3 / 5;
+		//	if (i < 0) {
+		//		int md = MODE_NUM + i;
+		//
+		//
+		//		drawString(mdChr[md], /*mdChrX[md] */270 + offsetx + 50, 133 + offsety, 12 + sizechange + -1, 0, 150, 150, 200);
+		//		drawLetter(mdIni[md] - 'A' + 10, sx, sy, sz, 0, 150, 150, 240);
+		//
+		//
+		//	}
+		//	else if (i < QUIT_STAGE_NUM) {
+		//		makeStageStr(i);
+		//
+		//
+		//
+		//		//level number in the box
+		//		drawString(stageStr, sx - sz, sy, sz, 0, 210, 210, 240);
+		//
+		//
+		//		//message and score
+		//		drawString(stgChr, 330 + offsetx, 133 + offsety, 12 + sizechange, 0, 210, 210, 240);
+		//		drawString(stageStr, 420 + offsetx, 133 + offsety, 12 + sizechange, 0, 210, 210, 240);
+		//		drawNumCenter(hiScore.score[mode][i], 440 + offsetx, 180 + offsety, 12 + sizechange, 210, 210, 240);
+		//
+		//		//separator line
+		//		drawBox(80, 355, 80, 1, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+		//
+		//	}
+		//	else {
+		//		drawLetter('Q' - 'A' + 10, sx, sy, sz, 0, 210, 210, 240);
+		//		drawString(quitChr, 350 + offsetx - 20, 133 + offsety, 12 - 2, 0, 210, 210, 240);
+		//	}
+		//}
+		        //else
+        int sz = CONFIG_BOX_SIZE / 3.5;
+        if (i == slcConfig) {
+            
+		
+			   //  sz = sz * 3 / 5;
+            drawString(configNames[slcConfig], sx - sz - 10, sy, 8, 0, 210, 210, 240);
+			//drawString(, /*mdChrX[md] */270 + offsetx + 50, 133 + offsety, 12 + sizechange + -1, 0, 150, 150, 200);
+
+            drawBox(sx + 20, sy, CONFIG_BOX_SIZE / 2, CONFIG_BOX_HEIGHT * 1.3, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+
+            
+            if (i != CONFIG_COUNT - 1)
+            {
+				drawBox(sx + (CONFIG_BOX_SIZE/2) + 50, sy, 20, CONFIG_BOX_HEIGHT * 1.3, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+
+                int isYes = 0;
+                if (i == 0 && bSmoothJoystick)
+                {
+                    isYes = 1;
+                }
+				if (i == 1 && bBulletTime)
+				{
+					isYes = 1;
+				}
+                if (isYes)
+                {
+                    drawString("YES", sx + (CONFIG_BOX_SIZE / 2) + 36, sy, 8, 0, 210, 210, 240);
+                }
+                else {
+                    drawString("NO", sx + (CONFIG_BOX_SIZE / 2) + 42, sy, 8, 0, 210, 210, 240);
+                }
+                
+            }
+            
+        }
+        else
+        {
+			drawString(configNames[i], sx - sz - 30, sy, 6, 0, 210, 210, 240);
+			//drawString(, /*mdChrX[md] */270 + offsetx + 50, 133 + offsety, 12 + sizechange + -1, 0, 150, 150, 200);
+
+			//drawBox(sx + 20, sy, CONFIG_BOX_SIZE / 2, CONFIG_BOX_HEIGHT * 1.3, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+
+			drawBox(sx, sy, CONFIG_BOX_SIZE / 2, CONFIG_BOX_HEIGHT, r * 2 / 3, g * 2 / 3, b * 2 / 3);
+		}
+	}
+	drawString(mdChr[0], mdChrX[mode], 455, 12, 0, 150, 150, 200);
+}
+
 static int goCnt;
 
 void initGameoverAtr() {
   goCnt = 0;
   mnp = 0;
   fadeMusic();
+
+  savePreference();
 }
 
 void moveGameover() {

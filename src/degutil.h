@@ -13,9 +13,17 @@
 #define TAN_TABLE_SIZE 1024
 #define SC_TABLE_SIZE 1024
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int sctbl[];
 
 void initDegutil();
 int getDeg(int x, int y);
 int getDistance(int x, int y);
 float getDistanceFloat(float x, float y);
+#ifdef __cplusplus
+}
+#endif
+

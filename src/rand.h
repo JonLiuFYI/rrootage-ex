@@ -9,5 +9,14 @@
  *
  * @version $Revision: 1.1.1.1 $
  */
-void setSeed(unsigned long s);
-unsigned long nextRand();
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	void setSeed(unsigned long s);
+	unsigned long nextRand();
+
+#ifdef __cplusplus
+}
+#endif

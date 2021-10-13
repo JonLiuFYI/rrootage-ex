@@ -61,7 +61,9 @@ BulletMLNode::BulletMLNode(const std::string& name)
 BulletMLNode::~BulletMLNode() {}
 
 void BulletMLNode::setValue(const std::string& val) {
-	auto_ptr_copy(val_, calc(val));
+	val_ = calc(val);
+	//auto vl = calc(val);
+	//auto_ptr_copy(val_, vl);
 }
 
 void BulletMLNode::dump() {

@@ -9,5 +9,12 @@
  *
  * @version $Revision: 1.1.1.1 $
  */
-void initBarragemanager();
-void closeBarragemanager();
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void initBarragemanager();
+	void closeBarragemanager();
+#ifdef __cplusplus
+}
+#endif

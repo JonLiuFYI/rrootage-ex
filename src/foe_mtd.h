@@ -14,15 +14,25 @@
 #define BULLET_COLOR_NUM 4
 #define BULLET_TYPE_NUM 3
 
-extern int processSpeedDownBulletsNum;
-extern int nowait;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void initFoes();
-void closeFoes();
-void moveFoes();
-void clearFoes();
-void clearFoesZako();
-void wipeBullets(Vector *pos, int width);
-void drawBulletsWake();
-void drawFoes();
-void drawBullets();
+	extern int processSpeedDownBulletsNum;
+	extern int nowait;
+
+
+
+	void initFoes();
+	void closeFoes();
+	void moveFoes();
+	void clearFoes();
+	void clearFoesZako();
+	void wipeBullets(Vector* pos, int width);
+	void drawBulletsWake();
+	void drawFoes();
+	void drawBullets(float ratio);
+
+#ifdef __cplusplus
+}
+#endif

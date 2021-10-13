@@ -10,15 +10,17 @@
  * @version $Revision: 1.4 $
  */
 
-//windows is necesary to be able to use opengl like this
-#ifdef _WIN32
-	#define WIN32_LEAN_AND_MEAN
-	#include "windows.h"
-#endif
 #include "SDL.h"
+#ifndef PLATFORM_NX
+//#include <windows.h>
+#endif
 
-#include "GL/gl.h"
-#include "GL/glu.h"
+#include "SDL_opengles2_khrplatform.h"
+#include "glad.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 #define PAD_UP 1
@@ -31,65 +33,125 @@
 
 #define DEFAULT_BRIGHTNESS 224
 
-extern float eyeX, eyeY, eyeZ;
-extern float pitch, roll;
-extern float zoom;
-extern Uint8 *keys;
-extern SDL_Joystick *stick;
-extern int buttonReversed;
-extern int lowres;
-extern int windowMode;
-extern int brightness;
 
-int getPadState();
-int getButtonState();
+	typedef struct {
 
-void loadModel(char *fileName, GLuint *model);
-void loadGLTexture(char*, GLuint*);
-void generateTexture(GLuint*);
-void deleteTexture(GLuint*);
-void initSDL();
-void closeSDL();
-void resized(int, int);
-void drawGLSceneStart();
-void drawGLSceneEnd();
-void swapGLScene();
+		int pad;
+		float x;
+		float y;
 
-void setScreenShake(int type, int cnt);
-void moveScreenShake();
+	}PadState;
 
-void drawBox(GLfloat x, GLfloat y, GLfloat width, GLfloat height, int r, int g, int b);
-void drawLine(GLfloat, GLfloat, GLfloat,
-	      GLfloat, GLfloat, GLfloat, int, int, int, int);
-void drawLinePart(GLfloat x1, GLfloat y1, GLfloat z1,
-		  GLfloat x2, GLfloat y2, GLfloat z2, int r, int g, int b, int a, int len);
-void drawRollLineAbs(GLfloat x1, GLfloat y1, GLfloat z1,
-		     GLfloat x2, GLfloat y2, GLfloat z2, int r, int g, int b, int a, int d1);
-void drawRollLine(GLfloat x, GLfloat y, GLfloat z, GLfloat width,
-		  int r, int g, int b, int a, int d1, int d2);
-void drawSquare(GLfloat x1, GLfloat y1, GLfloat z1, 
-		GLfloat x2, GLfloat y2, GLfloat z2, 
-		GLfloat x3, GLfloat y3, GLfloat z3, 
-		GLfloat x4, GLfloat y4, GLfloat z4, 
+	typedef struct {
+
+		//0 not touching, 1 touching
+		int TouchState;
+		//touch movement
+		float dx;
+		float dy;
+
+		//position
+		float x;
+		float y;
+
+	}TouchInputState;
+
+
+	extern float eyeX, eyeY, eyeZ;
+	extern float pitch, roll;
+	extern float zoom;
+	extern Uint8* keys;
+	extern SDL_Joystick* stick;
+	extern int buttonReversed;
+	extern int lowres;
+	extern int windowMode;
+	extern int brightness;
+	extern float touchsens;
+	extern TouchInputState touch;
+	extern SDL_Window* Window;
+	PadState getPadState();
+	int getButtonState();
+
+	void refresh_touch_input();
+
+	void loadModel(char* fileName, GLuint* model);
+	void loadGLTexture(const char*, GLuint*);
+	void generateTexture(GLuint*);
+	void deleteTexture(GLuint*);
+	void initSDL(int argc, char* argv[]);
+	void closeSDL();
+	void resized(int, int);
+	void drawGLSceneStart();
+	void drawGLSceneEnd();
+	void swapGLScene();
+
+	void setScreenShake(int type, int cnt);
+	void moveScreenShake();
+
+	void drawBox(GLfloat x, GLfloat y, GLfloat width, GLfloat height, int r, int g, int b);
+	void drawLine(GLfloat, GLfloat, GLfloat,
+		GLfloat, GLfloat, GLfloat, int, int, int, int);
+	void drawLinePart(GLfloat x1, GLfloat y1, GLfloat z1,
+		GLfloat x2, GLfloat y2, GLfloat z2, int r, int g, int b, int a, int len);
+	void drawRollLineAbs(GLfloat x1, GLfloat y1, GLfloat z1,
+		GLfloat x2, GLfloat y2, GLfloat z2, int r, int g, int b, int a, int d1);
+	void drawRollLine(GLfloat x, GLfloat y, GLfloat z, GLfloat width,
+		int r, int g, int b, int a, int d1, int d2);
+	void drawSquare(GLfloat x1, GLfloat y1, GLfloat z1,
+		GLfloat x2, GLfloat y2, GLfloat z2,
+		GLfloat x3, GLfloat y3, GLfloat z3,
+		GLfloat x4, GLfloat y4, GLfloat z4,
 		int r, int g, int b);
-void drawStar(int f, GLfloat x, GLfloat y, GLfloat z, int r, int g, int b, float size);
-void drawLaser(GLfloat x, GLfloat y, GLfloat width, GLfloat height,
-	       int cc1, int cc2, int cc3, int cc4, int cnt, int type);
-void drawCore(GLfloat x, GLfloat y, int cnt, int r, int g, int b);
-void drawShipShape(GLfloat x, GLfloat y, float d, int inv);
-void drawBomb(GLfloat x, GLfloat y, GLfloat width, int cnt);
-void drawCircle(GLfloat x, GLfloat y, GLfloat width, int cnt, 
+	void drawStar(int f, GLfloat x, GLfloat y, GLfloat z, int r, int g, int b, float size);
+	void drawLaser(GLfloat x, GLfloat y, GLfloat width, GLfloat height,
+		int cc1, int cc2, int cc3, int cc4, int cnt, int type);
+	void drawCore(GLfloat x, GLfloat y, int cnt, int r, int g, int b);
+	void drawShipShape(GLfloat x, GLfloat y, float d, int inv);
+	void drawBomb(GLfloat x, GLfloat y, GLfloat width, int cnt);
+	void drawCircle(GLfloat x, GLfloat y, GLfloat width, int cnt,
 		int r1, int g1, int b1, int r2, int b2, int g2);
-void drawShape(GLfloat x, GLfloat y, GLfloat size, int d, int cnt, int type,
-	       int r, int g, int b);
-void drawShapeIka(GLfloat x, GLfloat y, GLfloat size, int d, int cnt, int type, int c);
-void drawShot(GLfloat x, GLfloat y, GLfloat d, int c, float width, float height);
-void startDrawBoards();
-void endDrawBoards();
-void drawSideBoards();
-void drawTitleBoard();
+	void drawShape(GLfloat x, GLfloat y, GLfloat size, int d, int cnt, int type,
+		int r, int g, int b);
+	void drawShapeIka(GLfloat x, GLfloat y, GLfloat size, int d, int cnt, int type, int c);
+	void drawShot(GLfloat x, GLfloat y, GLfloat d, int c, float width, float height);
+	void startDrawBoards();
+	void endDrawBoards();
+	void drawSideBoards();
+	void drawTitleBoard();
 
-int drawNum(int n, int x ,int y, int s, int r, int g, int b);
-int drawNumRight(int n, int x ,int y, int s, int r, int g, int b);
-int drawNumCenter(int n, int x ,int y, int s, int r, int g, int b);
-int drawTimeCenter(int n, int x ,int y, int s, int r, int g, int b);
+	int drawNum(int n, int x, int y, int s, int r, int g, int b);
+	int drawNumRight(int n, int x, int y, int s, int r, int g, int b);
+	int drawNumCenter(int n, int x, int y, int s, int r, int g, int b);
+	int drawTimeCenter(int n, int x, int y, int s, int r, int g, int b);
+
+	typedef struct {
+		GLfloat x;
+		GLfloat y;
+		GLfloat size;
+		int d;
+		int cnt;
+		int type;
+		int r;
+		int g;
+		int b;
+	}FoeDraw;
+	typedef struct {
+		GLfloat x;
+		GLfloat y;
+		GLfloat size;
+		int d;
+		int cnt;
+		int type;
+		int c;
+	}FoeDrawIka;
+
+
+
+
+	void batchdrawShape(FoeDraw* draw, int count);
+
+	void batchDrawShapeIka(FoeDrawIka* draw, int count);
+
+#ifdef __cplusplus
+}
+#endif

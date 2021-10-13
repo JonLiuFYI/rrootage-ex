@@ -9,8 +9,13 @@
  *
  * @version $Revision: 1.1.1.1 $
  */
-
-void drawLetter(int idx, int lx, int ly, int ltSize, int d,
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void drawLetter(int idx, int lx, int ly, int ltSize, int d,
 		int r, int g, int b);
-void drawString(char *str, int lx, int ly, int ltSize, int d, 
+	void drawString(char* str, int lx, int ly, int ltSize, int d,
 		int r, int g, int b);
+#ifdef __cplusplus
+}
+#endif

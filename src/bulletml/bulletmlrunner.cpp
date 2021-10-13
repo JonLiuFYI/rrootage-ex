@@ -5,6 +5,7 @@
 #include "bulletmlrunnerimpl.h"
 
 BulletMLRunner::BulletMLRunner(BulletMLParser* bulletml) {
+	if (bulletml == NULL) return;
 	const std::vector<BulletMLNode*>& acts = bulletml->getTopActions();
 	for (size_t i = 0; i < acts.size(); i++) {
 		std::vector<BulletMLNode*> act;

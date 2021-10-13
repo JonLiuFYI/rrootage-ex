@@ -12,10 +12,18 @@
 #ifndef FOE_H_
 #define FOE_H_
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include "vector.h"
 #include "foe_mtd.h"
-}
+
+
+	int getAliveFoes();
+#ifdef __cplusplus
+	}
+#endif
 
 #include "bulletml/bulletmlparser.h"
 #include "bulletml/bulletmlparser-tinyxml.h"
@@ -30,49 +38,58 @@ extern "C" {
 
 #define NOT_EXIST_TMP (NOT_EXIST-1)
 
-struct foe {
-  Vector pos, vel, ppos, spos, mv;
-  int d, spd;
-  FoeCommand *cmd;
-  double rank;
-  int spc;
-  int cnt, cntTotal;
-  int xReverse;
-  int fireCnt;
-  int slowMvCnt;
-  BulletMLParser *parser;
+	struct foe {
+		Vector pos, vel, ppos, spos, mv;
+		int d, spd;
+		FoeCommand* cmd;
+		double rank;
+		int spc;
+		int cnt, cntTotal;
+		int xReverse;
+		int fireCnt;
+		int slowMvCnt;
+		BulletMLParser* parser;
 
-  BulletMLParser *morphParser[MORPH_PATTERN_MAX];
-  int morphCnt;
-  int morphHalf;
-  double morphRank;
-  double speedRank;
+		BulletMLParser* morphParser[MORPH_PATTERN_MAX];
+		int morphCnt;
+		int morphHalf;
+		double morphRank;
+		double speedRank;
 
-  int color;
-  int shapeType;
-  int bulletShape[3];
-  float bulletSize[3];
+		int color;
+		int shapeType;
+		int bulletShape[3];
+		float bulletSize[3];
 
-  struct limiter *limiter;
+		struct limiter* limiter;
 
-  int ikaType;
+		int ikaType;
 
-  int grzRng;
-};
+		int grzRng;
+	};
 
-typedef struct foe Foe;
+	typedef struct foe Foe;
 
-Foe* addFoeBattery(int x, int y, double rank, int d, int spd, int xReverse, 
-		   BulletMLParser *morphParser[], int morphCnt, int morphHalf, double morphRank,
-		   double speedRank,
-		   int color, int bulletShape[], float bulletSize[],
-		   struct limiter *limiter,
-		   int ikaType,
-		   BulletMLParser *parser);
-void addFoeActiveBullet(Foe *foe, int d, int spd, int color, BulletMLState *state);
-void addFoeNormalBullet(Foe *foe, int d, int spd, int color);
-void removeFoeCommand(Foe *fe);
-void removeFoe(Foe *fe);
-void removeFoeForced(Foe *fe);
-void wipeBullets(Vector *pos, int width);
+
+#ifdef __cplusplus
+	extern "C" {
+#endif
+	Foe* addFoeBattery(int x, int y, double rank, int d, int spd, int xReverse,
+		BulletMLParser* morphParser[], int morphCnt, int morphHalf, double morphRank,
+		double speedRank,
+		int color, int bulletShape[], float bulletSize[],
+		struct limiter* limiter,
+		int ikaType,
+		BulletMLParser* parser);
+	void addFoeActiveBullet(Foe* foe, int d, int spd, int color, BulletMLState* state);
+	void addFoeNormalBullet(Foe* foe, int d, int spd, int color);
+	void removeFoeCommand(Foe* fe);
+	void removeFoe(Foe* fe);
+	void removeFoeForced(Foe* fe);
+	void wipeBullets(Vector* pos, int width);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

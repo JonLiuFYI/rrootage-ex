@@ -9,10 +9,20 @@
  *
  * @version $Revision: 1.1.1.1 $
  */
-void closeSound();
-void initSound();
-void playMusic(int idx);
-void fadeMusic();
-void stopMusic();
-void playChunk(int idx);
-void haltChunk(int idx);
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	void closeSound();
+	void initSound();
+	void playMusic(int idx);
+	void fadeMusic();
+	void stopMusic();
+	void playChunk(int idx);
+	void haltChunk(int idx);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,0 +1,431 @@
+/*
+ * $Id: rr.c,v 1.4 2003/04/26 03:24:16 kenta Exp $
+ *
+ * Copyright 2003 Kenta Cho. All rights reserved.
+ */
+
+/**
+ * rRootage main routine.
+ *
+ * @version $Revision: 1.4 $
+ */
+#include "SDL.h"
+#include "SDL_keyboard.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+#include "rr.h"
+#include "screen.h"
+#include "vector.h"
+#include "foe_mtd.h"
+#include "brgmng_mtd.h"
+#include "degutil.h"
+#include "boss_mtd.h"
+#include "ship.h"
+#include "laser.h"
+#include "frag.h"
+#include "shot.h"
+#include "background.h"
+#include "soundmanager.h"
+#include "attractmanager.h"
+
+#include "foe.h"
+
+
+static int noSound = 0;
+
+// Initialize and load preference.
+static void initFirst() {
+  time_t timer;
+  time(&timer);
+  srand(timer);
+
+  loadPreference();
+  initBarragemanager();
+  initAttractManager();
+  if ( !noSound ) initSound();
+  initGameStateFirst();
+}
+
+// Quit and save preference.
+void quitLast() {
+  if ( !noSound ) closeSound();
+  savePreference();
+  closeFoes();
+  closeBarragemanager();
+  closeSDL();
+  SDL_Quit();
+  exit(1);
+}
+
+int status;
+
+void initTitleStage(int stg) {
+  initFoes();
+  initStageState(stg);
+}
+
+void initConfigStage() {
+    status = IN_CONFIG;
+}
+
+void initTitle() {
+  int stg;
+  status = TITLE;
+
+  stg = initTitleAtr();
+  initBoss();
+  initShip();
+  initLasers();
+  initFrags();
+  initShots();
+  initBackground(0);
+  initTitleStage(stg);
+
+  savePreference();
+  left = -1;
+}
+
+void initGame(int stg) {
+  int sn;
+  status = IN_GAME;
+
+  initBoss();
+  initFoes();
+  initShip();
+  initLasers();
+  initFrags();
+  initShots();
+
+  initGameState(stg);
+  sn = stg%SAME_RANK_STAGE_NUM;
+  initBackground(sn);
+  if ( sn == SAME_RANK_STAGE_NUM-1 ) {
+    playMusic(rand()%(SAME_RANK_STAGE_NUM-1));
+  } else {
+    playMusic(sn);
+  }
+}
+
+void initGameover() {
+  status = GAMEOVER;
+  initGameoverAtr();
+}
+
+
+static double accumulator = 0.f;
+static double frame_time = 1.0 / 60.0;
+static double frameratio = 0.f;
+static void move() {
+
+    float framelen;
+    
+    int skipframe = 0;
+
+    int bullets = getAliveFoes();
+
+    int minbullets = 100;
+    int maxbullets = 700;
+    int bulletrange = maxbullets - minbullets;
+    if (bullets > maxbullets)
+    {
+        bullets = maxbullets;
+    }
+    else if (bullets < minbullets){
+        bullets = minbullets;
+    }
+
+   
+    float minslow = frame_time;
+    float maxslow = frame_time * 0.33;
+
+    //convert bullet count into 0-1 range
+    float range = (bullets - minbullets) / (float)bulletrange;
+   
+    framelen = lerp(minslow, maxslow, range);
+
+    accumulator += framelen;
+    if (accumulator > frame_time)
+    {
+        accumulator -= frame_time;
+        skipframe = 1;
+    }
+    else {
+        skipframe = 0;
+    }
+
+    frameratio = accumulator / frame_time;
+
+    if ( bBulletTime == 0 )
+    {
+        frameratio = 1.f;
+        skipframe = 1;
+        accumulator = 0.f;
+    }
+
+   switch ( status ) {
+  case TITLE:
+    moveTitleMenu();
+    moveBoss();
+    moveFoes();
+    moveBackground();
+    break;
+  case IN_CONFIG:
+      moveBackground();
+      moveConfigMenu();
+      break;
+  case IN_GAME:
+  case STAGE_CLEAR:
+    moveShip();
+    if (skipframe)
+    {
+        moveBoss();
+    }
+	moveLasers();
+	moveShots();
+   
+    if (skipframe)
+	{
+        moveFoes();
+    }
+
+    moveFrags();
+    moveBackground();
+    break;
+  case GAMEOVER:
+    moveGameover();
+    moveBoss();
+    moveFoes();
+    moveFrags();
+    moveBackground();
+    break;
+  case PAUSE:
+    movePause();
+    break;
+  }
+  moveScreenShake();
+}
+
+static void draw() {
+  switch ( status ) {
+  case TITLE:
+    drawBackground();
+    drawBoss();
+	drawBulletsWake();
+	drawBullets(1.0f);
+	startDrawBoards();
+	drawSideBoards();
+	drawTitle();
+	endDrawBoards();
+    break;
+  case IN_CONFIG:
+      drawBackground();
+	  startDrawBoards();
+	  drawSideBoards();
+      drawConfig();
+	  endDrawBoards();
+      break;
+  case IN_GAME:
+  case STAGE_CLEAR:
+    drawBackground();
+    drawBoss();
+    drawLasers();
+    drawShots();
+    drawBulletsWake();
+    drawFrags();
+    drawShip();
+	drawBullets(frameratio);
+	startDrawBoards();
+	drawSideBoards();
+	drawBossState();
+	endDrawBoards();
+    break;
+  case GAMEOVER:
+    drawBackground();
+    drawBoss();
+    drawBulletsWake();
+    drawFrags();
+    drawBullets(1.0f);
+    startDrawBoards();
+    drawSideBoards();
+    drawGameover();
+    endDrawBoards();
+    break;
+  case PAUSE:
+    drawBackground();
+    drawBoss();
+    drawLasers();
+    drawShots();
+    drawBulletsWake();
+    drawFrags();
+    drawShip();
+    drawBullets(1.0f);
+    startDrawBoards();
+    drawSideBoards();
+    drawBossState();
+    drawPause();
+    endDrawBoards();
+    break;
+  }
+}
+
+static int accframe = 0;
+
+static void usage(char *argv0) {
+  fprintf(stderr, "Usage: %s [-lowres] [-nosound] [-fullscreen] [-reverse] [-nowait] [-accframe]\n", argv0);
+}
+
+static void parseArgs(int argc, char *argv[]) {
+  int i;
+  for ( i=1 ; i<argc ; i++ ) {
+    if ( strcmp(argv[i], "-lowres") == 0 ) {
+      lowres = 1;
+    } else if ( strcmp(argv[i], "-nosound") == 0 ) {
+      noSound = 1;
+    } else if ( strcmp(argv[i], "-fullscreen") == 0 ) {
+      windowMode = 0;
+    } else if ( strcmp(argv[i], "-reverse") == 0 ) {
+      buttonReversed = 1;
+    }
+    /* else if ( (strcmp(argv[i], "-brightness") == 0) && argv[i+1] ) {
+      i++;
+      brightness = (int)atoi(argv[i]);
+      if ( brightness < 0 || brightness > 256 ) {
+	brightness = DEFAULT_BRIGHTNESS;
+      }
+      }*/ 
+    else if ( strcmp(argv[i], "-nowait") == 0 ) {
+      nowait = 1;
+    } else if ( strcmp(argv[i], "-accframe") == 0 ) {
+      accframe = 1;
+    } else {
+      usage(argv[0]);
+      exit(1);
+    }
+  }
+}
+//#include <imgui.h>
+void config_window() {
+  //  return ;
+  //  ImGui::Begin("Config");
+  //
+  //  ImGui::Checkbox("Reversed Mode", (bool*)&buttonReversed);
+  //  ImGui::Checkbox("No wait", (bool*)&nowait);
+  //  ImGui::SliderFloat("Touch Sensitivity", &touchsens, 0.3, 3.f);
+  //
+  // ImGui::End();
+}
+
+
+
+int interval = INTERVAL_BASE;
+int tick = 0;
+static int pPrsd = 1;
+
+void imgui_newframe(SDL_Window* window);
+#ifndef PLATFORM_NX
+#include <Windows.h>
+#ifdef USE_LPP
+#include "LPP_API.h"
+#endif
+#endif
+int main(int argc, char *argv[]) {
+  int done = 0;
+  long prvTickCount = 0;
+  int i; 
+  SDL_Event event;
+  long nowTick;
+  long oldTick;
+  int frame;
+  int buttons;
+#ifndef PLATFORM_NX 
+#ifdef USE_LPP
+  HMODULE livePP = lpp::lppLoadAndRegister(L"D:/Original_NvmeK/Programming/rrootage/LivePP", "Sample");
+
+  lpp::lppEnableCallingModuleSync(livePP);
+  lpp::lppInstallExceptionHandler(livePP);
+  #endif
+#endif
+  windowMode = 1;
+  parseArgs(argc, argv);
+
+  initDegutil();
+  initSDL(argc,argv);
+  initFirst();
+  initTitle();
+  oldTick = SDL_GetTicks();
+  while ( !done ) {
+#ifndef PLATFORM_NX
+#ifdef USE_LPP
+      lpp::lppSyncPoint(livePP);
+      #endif
+#endif     
+      
+
+    keys = const_cast<Uint8*>(SDL_GetKeyboardState(NULL));
+    buttons = getButtonState();
+    
+
+    refresh_touch_input();
+
+    config_window();
+
+    if ( keys[SDL_GetScancodeFromKey(SDLK_ESCAPE)] == SDL_PRESSED /* || event.type == SDL_QUIT*/) done = 1;
+    if ( buttons & PAD_BUTTONP ) {
+      if ( !pPrsd ) {
+	if ( status == IN_GAME ) {
+	  status = PAUSE;
+	} else if ( status == PAUSE ) {
+	  status = IN_GAME;
+	}
+      }
+      pPrsd = 1;
+    } else {
+      pPrsd = 0;
+    }frame = 1;
+
+    
+    move();
+    tick++;
+
+    drawGLSceneStart();
+    draw();
+
+    drawGLSceneEnd();
+    swapGLScene();
+
+	accframe = 0;
+
+#ifndef PLATFORM_NX
+    //delay for vsync. Not very accurate
+    while (1)
+    {
+        nowTick = SDL_GetTicks();
+        int delta = nowTick - oldTick;
+        if (delta < interval)
+        {
+            SDL_Delay(1);
+        }
+        else {
+            break;
+        }
+    }
+#else
+    //we can rely on vsync on switch so no delays
+    nowTick = SDL_GetTicks();
+#endif
+    oldTick = nowTick;
+
+    
+  }
+  quitLast();
+#ifndef PLATFORM_NX
+#ifdef USE_LPP
+  lpp::lppShutdown(livePP);
+  ::FreeLibrary(livePP);
+#endif
+#endif
+  return 0;
+}

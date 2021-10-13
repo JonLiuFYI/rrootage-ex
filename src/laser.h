@@ -11,13 +11,21 @@
  */
 #include "vector.h"
 
-typedef struct {
-  int y;
-  int color;
-  int cnt;
-} Laser;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void initLasers();
-void moveLasers();
-void drawLasers();
-void addLaser();
+	typedef struct {
+		int y;
+		int color;
+		int cnt;
+	} Laser;
+
+	void initLasers();
+	void moveLasers();
+	void drawLasers();
+	void addLaser();
+
+#ifdef __cplusplus
+}
+#endif

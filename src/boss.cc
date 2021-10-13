@@ -882,98 +882,98 @@ void drawBoss() {
   int crBpn, crBpl;
   int bpn;
   crBpn = crBpl = 0;
-  x =  (float)boss.x / FIELD_SCREEN_RATIO;
-  y = -(float)boss.y / FIELD_SCREEN_RATIO;
-  if ( bossShape.diffuse > 0  && boss.state < DESTROIED ) {
-    df = bossShape.diffuse;
-    drawStar(1, x, y, 0, df, df, df, (float)(df+256)/500.0f);
-    drawStar(1, x, y, 0, df, df, df, (float)(df+randN(256))/500.0f);
+x =  (float)boss.x / FIELD_SCREEN_RATIO;
+y = -(float)boss.y / FIELD_SCREEN_RATIO;
+if ( bossShape.diffuse > 0  && boss.state < DESTROIED ) {
+  df = bossShape.diffuse;
+  drawStar(1, x, y, 0, df, df, df, (float)(df+256)/500.0f);
+  drawStar(1, x, y, 0, df, df, df, (float)(df+randN(256))/500.0f);
+}
+for ( i=0 ; i<boss.batteryGroupNum ; i++ ) {
+  BossTree *bt = &(bossShape.tree[i]);
+  bpn = bt->posNum-1;
+  x1 = x; y1 = y; z1 = 0;
+  switch ( boss.state ) {
+  case CREATING:
+  case CHANGE:
+    crBpn = (bpn+1)*(BOSS_PATTERN_CHANGE_CNT-boss.stateCnt-1)/BOSS_PATTERN_CHANGE_CNT;
+    crBpl = 255 - 
+(boss.stateCnt%(BOSS_PATTERN_CHANGE_CNT/(bpn+1))*256)/(BOSS_PATTERN_CHANGE_CNT/(bpn+1));
+    break;
   }
-  for ( i=0 ; i<boss.batteryGroupNum ; i++ ) {
-    BossTree *bt = &(bossShape.tree[i]);
-    bpn = bt->posNum-1;
-    x1 = x; y1 = y; z1 = 0;
+  for ( j=0 ; j<bpn ; j++ ) {
+    x2 =  x + bt->x[j+1];
+    y2 =  y - bt->y[j+1];
+    z2 =  bt->z[j+1];
     switch ( boss.state ) {
+    case ATTACKING:
+    case LAST_ATTACK:
+    case DESTROIED:
+drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
+drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
+break;
     case CREATING:
+if ( j == crBpn ) {
+  drawLinePart(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240, crBpl);
+} else if ( j < crBpn ) {
+  drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
+}
+if ( crBpn == bpn ) {
+  bt->wing[j].size = (float)crBpl/255;
+  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
+}
+break;
     case CHANGE:
-      crBpn = (bpn+1)*(BOSS_PATTERN_CHANGE_CNT-boss.stateCnt-1)/BOSS_PATTERN_CHANGE_CNT;
-      crBpl = 255 - 
-	(boss.stateCnt%(BOSS_PATTERN_CHANGE_CNT/(bpn+1))*256)/(BOSS_PATTERN_CHANGE_CNT/(bpn+1));
-      break;
+drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
+if ( crBpn == bpn ) {
+  bt->wing[j].size = (float)crBpl/128;
+  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
+}
+break;
     }
-    for ( j=0 ; j<bpn ; j++ ) {
-      x2 =  x + bt->x[j+1];
-      y2 =  y - bt->y[j+1];
-      z2 =  bt->z[j+1];
-      switch ( boss.state ) {
-      case ATTACKING:
-      case LAST_ATTACK:
-      case DESTROIED:
-	drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
-	drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
-	break;
-      case CREATING:
-	if ( j == crBpn ) {
-	  drawLinePart(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240, crBpl);
-	} else if ( j < crBpn ) {
-	  drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
-	}
-	if ( crBpn == bpn ) {
-	  bt->wing[j].size = (float)crBpl/255;
-	  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
-	}
-	break;
-      case CHANGE:
-	drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 240);
-	if ( crBpn == bpn ) {
-	  bt->wing[j].size = (float)crBpl/128;
-	  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->wing[j]));
-	}
-	break;
-      }
-      if ( bt->diffuse > 0 && boss.state != CHANGE && boss.state < DESTROIED ) {
-	df = bt->diffuse;
-	drawStar(0, x2, y2, z2, df, df, df, (float)(df+256)/900.0f);
-	drawStar(0, x2, y2, z2, df, df, df, (float)(df+randN(256))/900.0f);
-      }
-      x1 = x2; y1 = y2; z1 = z2;
+    if ( bt->diffuse > 0 && boss.state != CHANGE && boss.state < DESTROIED ) {
+df = bt->diffuse;
+drawStar(0, x2, y2, z2, df, df, df, (float)(df+256)/900.0f);
+drawStar(0, x2, y2, z2, df, df, df, (float)(df+randN(256))/900.0f);
     }
-    x1 = x + bt->x[bpn];
-    y1 = y - bt->y[bpn];
-    z1 = bt->z[bpn];
-    for ( j=0 ; j<bt->epNum ; j++ ) {
-      x2 = x + bt->ex[j];
-      y2 = y - bt->ey[j];
-      z2 = bt->ez[j];
-      switch ( boss.state ) {
-      case ATTACKING:
-      case LAST_ATTACK:
-      case DESTROIED:
-	drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220);
-	drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
-	break;
-      case CREATING:
-	if ( crBpn == bpn ) {
-	  drawLinePart(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220, crBpl);
-	  bt->eWing[j].size = (float)crBpl/255;
-	  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
-	}
-	break;
-      case CHANGE:
-	drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220);
-	if ( crBpn == bpn ) {
-	  bt->eWing[j].size = (float)crBpl/128;
-	  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
-	}
-	break;
-      }
-      if ( bt->diffuse > 0 && boss.state != CHANGE && boss.state < DESTROIED ) {
-	df = bt->diffuse;
-	drawStar(1, x2, y2, z2, df, df, df, (float)(df+256)/640.0f);
-	drawStar(1, x2, y2, z2, df, df, df, (float)(df+randN(256))/640.0f);
-      }
+    x1 = x2; y1 = y2; z1 = z2;
+  }
+  x1 = x + bt->x[bpn];
+  y1 = y - bt->y[bpn];
+  z1 = bt->z[bpn];
+  for ( j=0 ; j<bt->epNum ; j++ ) {
+    x2 = x + bt->ex[j];
+    y2 = y - bt->ey[j];
+    z2 = bt->ez[j];
+    switch ( boss.state ) {
+    case ATTACKING:
+    case LAST_ATTACK:
+    case DESTROIED:
+drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220);
+drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
+break;
+    case CREATING:
+if ( crBpn == bpn ) {
+  drawLinePart(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220, crBpl);
+  bt->eWing[j].size = (float)crBpl/255;
+  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
+}
+break;
+    case CHANGE:
+drawLine(x1, y1, z1, x2, y2, z2, bossShape.r, bossShape.g, bossShape.b, 220);
+if ( crBpn == bpn ) {
+  bt->eWing[j].size = (float)crBpl/128;
+  drawBossWing(x1, y1, z1, x2, y2, z2, &(bt->eWing[j]));
+}
+break;
+    }
+    if ( bt->diffuse > 0 && boss.state != CHANGE && boss.state < DESTROIED ) {
+df = bt->diffuse;
+drawStar(1, x2, y2, z2, df, df, df, (float)(df+256)/640.0f);
+drawStar(1, x2, y2, z2, df, df, df, (float)(df+randN(256))/640.0f);
     }
   }
+}
   drawCore(x, y, boss.cnt, boss.r, boss.g, boss.b);
 }
 

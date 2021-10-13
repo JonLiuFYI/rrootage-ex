@@ -199,7 +199,6 @@ class ygg_iterator;
 class ygg_reverse_iterator;
 class ygg_const_iterator;
 class ygg_const_reverse_iterator;
-class ygg_parser;
 class sax_parser;
 class sax_handler;
 class ygg_error_code;
@@ -1619,6 +1618,7 @@ class ygg_error :public ygg_error_code, public ygg_position {
 //
 //	■SAXハンドラ基本クラス
 //
+class ygg_parser;
 class sax_handler {
 	friend class ygg_parser;
 	ygg_parser *parser;

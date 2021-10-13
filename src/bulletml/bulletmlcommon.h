@@ -1,15 +1,7 @@
 #ifndef bulletmlcommon_h_
 #define bulletmlcommon_h_
 
-#ifndef DECLSPEC
-	#ifdef WIN32_DLL_EXPORT
-	# define DECLSPEC __declspec(dllexport)
-	#else
-	# define DECLSPEC
-	#endif
-#endif
-
-#include <string.h>
+#include "auto_ptr_fix.h"
 
 #endif // ! bulletmlcommon_h_
 
