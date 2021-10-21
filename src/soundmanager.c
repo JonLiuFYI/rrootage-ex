@@ -6,7 +6,6 @@
 
 #include "audio.h"
 
-//#include "SDL_mixer.h"
 #include "soundmanager.h"
 
 static int useAudio = 0;
@@ -17,7 +16,7 @@ static char *musicFileName[MUSIC_NUM] = {
   "stg_a2.ogg", "stg_b2.ogg", "stg_c2.ogg",
 };
 
-//static Mix_Music *music[MUSIC_NUM];
+
 static Audio* music[MUSIC_NUM];
 
 #define CHUNK_NUM 16

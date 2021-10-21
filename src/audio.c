@@ -1,7 +1,7 @@
 /*
  * Simple-SDL2-Audio
  *
- * Copyright 2016 Jake Besworth
+ * Copyright 2016 Jake Besworth. Changed by vblanco for improvements and ogg support
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

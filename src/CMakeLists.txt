@@ -39,16 +39,10 @@ if( WIN32 )
     add_custom_command(TARGET rR POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${SDL_PATH}/lib/x64/SDL2.dll" "${CMAKE_CURRENT_SOURCE_DIR}/.."
     )
-    add_custom_command(TARGET rR POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${SDLMIXER_PATH}/lib/x64/SDL2_mixer.dll" "${CMAKE_CURRENT_SOURCE_DIR}/.."
-    )
 
     # copy dlls to the bin folder
     add_custom_command(TARGET rR POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${SDL_PATH}/lib/x64/SDL2.dll"  $<TARGET_FILE_DIR:rR>
-    )
-    add_custom_command(TARGET rR POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${SDLMIXER_PATH}/lib/x64/SDL2_mixer.dll"  $<TARGET_FILE_DIR:rR>
     )
 endif()
 
