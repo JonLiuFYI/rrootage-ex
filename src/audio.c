@@ -272,7 +272,7 @@ void freeAudio(Audio * audio)
         free(temp);
     }
 }
-static lastaudio = 0;
+static uint32_t lastaudio = 0;
 
 
 void PlayChannel(Audio* music, int channel, int volume)
@@ -343,7 +343,7 @@ Audio * createAudio(const char * filename, uint8_t loop, int volume)
         newAudio->lengthTrue = newAudio->audio.size;
         newAudio->length = newAudio->lengthTrue;
 
-        stb_vorbis_get_samples_short_interleaved(audio, 1, newAudio->bufferTrue, audio->total_samples);
+        stb_vorbis_get_samples_short_interleaved(audio, 1, (short *) newAudio->bufferTrue, audio->total_samples);
         
         newAudio->audio.channels = audio->channels;
         newAudio->audio.freq = audio->sample_rate;

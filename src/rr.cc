@@ -326,7 +326,9 @@ static int pPrsd = 1;
 
 void imgui_newframe(SDL_Window* window);
 #ifndef PLATFORM_NX
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #ifdef USE_LPP
 #include "LPP_API.h"
 #endif
