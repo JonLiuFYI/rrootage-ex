@@ -1,3 +1,6 @@
 rr.prf
 stdout.txt
 *.o
+
+build/
+rR
