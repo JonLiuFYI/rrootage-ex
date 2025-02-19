@@ -23,8 +23,12 @@
 //#include <windows.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <GL/gl.h>
+#else
 #include "SDL_opengles2_khrplatform.h"
 #include "glad.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

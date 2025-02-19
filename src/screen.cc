@@ -202,6 +202,8 @@ void initSDL(int argc, char* argv[]) {
  }
 
  SDL_GLContext Context = SDL_GL_CreateContext(Window);
+
+ #ifndef __EMSCRIPTEN__
  // glad: load all OpenGL function pointers
   // ---------------------------------------
  if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
@@ -209,6 +211,7 @@ void initSDL(int argc, char* argv[]) {
 	 printf("Failed to initialize GLAD");
 	 return;
  }
+ #endif
 
  
  for (int i = 0; i < 3; i++)

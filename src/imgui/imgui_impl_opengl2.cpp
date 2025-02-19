@@ -52,8 +52,12 @@
 //#include <GL/gl.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <GL/gl.h>
+#else
 #include "SDL_opengles2_khrplatform.h"
 #include "glad.h"
+#endif
 // OpenGL Data
 static GLuint       g_FontTexture = 0;
 
