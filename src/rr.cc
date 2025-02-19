@@ -10,6 +10,8 @@
  * @version $Revision: 1.4 $
  */
 
+#include <SDL_log.h>
+#include <SDL_rwops.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <SDL2/SDL.h>
@@ -398,6 +400,15 @@ static void mainloop() {
 }
 
 int main(int argc, char *argv[]) {
+  SDL_RWops * file = SDL_RWFromFile("resources/normal/22way.xml", "r+b");
+  if (!file) {
+    SDL_Log("????");
+  }
+  else {
+    SDL_Log("File was found");
+    SDL_RWclose(file);
+  }
+  
   windowMode = 1;
   parseArgs(argc, argv);
 

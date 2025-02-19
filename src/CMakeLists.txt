@@ -31,7 +31,9 @@ endif()
 
 # link
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    target_link_libraries(rrootage-ex bulletML GL GLU) # (?) figure out what to link
+    # TODO: figure out what to link
+    # Looks like bulletML is necessary
+    target_link_libraries(rrootage-ex bulletML)
 else()
     target_link_libraries(rrootage-ex SDLlibs bulletML GL GLU)
 endif()
