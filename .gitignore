@@ -7,4 +7,4 @@ build/
 .cache/
 compile_commands.json
 *.o
-rR
+rrootage-ex
