@@ -21,7 +21,7 @@ target_include_directories(rrootage-ex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     message(STATUS "EMSCRIPTEN build")
 
-    set(USE_FLAGS "-s USE_SDL=2 --preload-file ${PROJECT_SOURCE_DIR}/resources/")
+    set(USE_FLAGS "-s USE_SDL=2 --preload-file ${PROJECT_SOURCE_DIR}/resources/@/resources")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${USE_FLAGS}")
     file(COPY "${PROJECT_SOURCE_DIR}/index.html" DESTINATION ${CMAKE_BINARY_DIR})
 else()
