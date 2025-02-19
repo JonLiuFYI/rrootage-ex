@@ -25,7 +25,7 @@ Barrage barragePattern[BARRAGE_TYPE_NUM][BARRAGE_PATTERN_MAX];
 int barragePatternNum[BARRAGE_TYPE_NUM];
 
 static const char *BARRAGE_DIR_NAME[BARRAGE_TYPE_NUM] = {
-  "normal", "reversible", "morph", "simple", "morph_heavy", "psy",
+  "resources/normal", "resources/reversible", "resources/morph", "resources/simple", "resources/morph_heavy", "resources/psy",
 };
 
 #include <filesystem>

@@ -53,7 +53,7 @@ static void loadSounds() {
 #ifdef PLATFORM_NX
 	  strcpy(name, "Assets:/sounds/");
 #else
-	  strcpy(name, "sounds/");
+	  strcpy(name, "resources/sounds/");
 #endif
 	  strcat(name, musicFileName[i]);
 
@@ -67,7 +67,7 @@ static void loadSounds() {
 #ifdef PLATFORM_NX
 	  strcpy(name, "Assets:/sounds/");
 #else
-	  strcpy(name, "sounds/");
+	  strcpy(name, "resources/sounds/");
 #endif
     strcat(name, chunkFileName[i]);
 

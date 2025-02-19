@@ -115,7 +115,7 @@ void loadGLTexture(const char *fileName, GLuint *texture) {
 #ifdef PLATFORM_NX
   strcpy(name, "Assets:/images/");
 #else
-  strcpy(name, "images/");
+  strcpy(name, "resources/images/");
 #endif
   strcat(name, fileName);
   surface = SDL_LoadBMP(name);

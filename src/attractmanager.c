@@ -35,7 +35,7 @@ int mode;
 
 static PersistentState hiScore;
 
-#define PREF_FILE "rr.prf"
+#define PREF_FILE "resources/rr.prf"
 #define DEFAULT_HISCORE 100000
 
 static void initHiScore() {
