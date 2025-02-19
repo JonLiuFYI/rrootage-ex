@@ -8,7 +8,9 @@ project ("rRootage-ex")
 set (CMAKE_CXX_STANDARD 17)
 
 message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")		# e.g. `embuild`
-message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")		# (?) project base dir?
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")		# TODO: (?) project base dir?
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 	# setup SDL library
