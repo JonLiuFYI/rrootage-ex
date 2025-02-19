@@ -9,7 +9,14 @@
  *
  * @version $Revision: 1.3 $
  */
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <SDL2/SDL.h>
+
+#else
 #include "SDL.h"
+
+#endif
 
 #include "genmcr.h"
 #include "screen.h"

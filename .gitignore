@@ -4,6 +4,7 @@ stdout.txt
 
 # build-related stuff
 build/
+embuild/
 .cache/
 compile_commands.json
 *.o

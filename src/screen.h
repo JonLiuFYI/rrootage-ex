@@ -10,7 +10,15 @@
  * @version $Revision: 1.4 $
  */
 
+#ifdef __EMSCRIPTEN__
+// #include <emscripten.h>
+#include <SDL2/SDL.h>
+
+#else
 #include "SDL.h"
+
+#endif
+
 #ifndef PLATFORM_NX
 //#include <windows.h>
 #endif

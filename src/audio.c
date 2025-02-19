@@ -20,7 +20,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SDL.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <SDL2/SDL.h>
+
+#else
+#include "SDL.h"
+
+#endif
 
 #include "stb_vorbis.h"
 

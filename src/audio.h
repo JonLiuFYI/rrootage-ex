@@ -31,7 +31,15 @@ extern "C"
 {
 #endif
 
-#include <SDL.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <SDL2/SDL.h>
+
+#else
+#include "SDL.h"
+
+#endif
+
 
 /*
  * Queue structure for all loaded sounds
