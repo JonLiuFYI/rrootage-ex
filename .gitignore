@@ -1,6 +1,10 @@
+# cruft from running the app
 rr.prf
 stdout.txt
-*.o
 
+# build-related stuff
 build/
+.cache/
+compile_commands.json
+*.o
 rR
