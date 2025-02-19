@@ -7,56 +7,20 @@ project ("rRootage-ex")
 
 set (CMAKE_CXX_STANDARD 17)
 
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")		# e.g. `embuild`
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")		# (?) project base dir?
 
-include(FetchContent)
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+	# setup SDL library
+	find_package(SDL2 REQUIRED)
+	message(STATUS "SDL2 header path: ${SDL2_INCLUDE_DIRS}")
+	message(STATUS "SDL2 library: ${SDL2_LIBRARIES}")
 
-# setup SDL library
-#set(SDL_PATH "/usr/include/SDL" CACHE  PATH "path to SDL installation")
-set(DOWNLOAD_DEPS true CACHE BOOL "Automatic download SDL")
+	add_library(SDLlibs INTERFACE)
 
-find_package(SDL2 REQUIRED)
-message(STATUS "SDL2 header path: ${SDL2_INCLUDE_DIRS}")
-message(STATUS "SDL2 library: ${SDL2_LIBRARIES}")
-
-add_library(SDLlibs INTERFACE)
-
-if(NOT MSVC)
-	#find_path(SDL_PATH SDL.h
-	#HINTS
-	#	ENV SDLDIR
-	#PATH_SUFFIXES SDL SDL12 SDL11
-	#				# path suffixes to search inside ENV{SDLDIR}
-	#				include/SDL include/SDL2 include
-	#)
-		
-	#message(STATUS "Found SDL At ${SDL_PATH}" )
 	target_include_directories(SDLlibs INTERFACE "${SDL2_INCLUDE_DIRS}")
-else()
 
-	if(${DOWNLOAD_DEPS})
-		FetchContent_Declare(
-		ext_sdllib
-		URL https://www.libsdl.org/release/SDL2-devel-2.0.16-VC.zip
-		SOURCE_DIR "libs/SDL"
-		)
-		
-		FetchContent_MakeAvailable(ext_sdllib)
-		
-	
-		
-		set(SDL_PATH "${CMAKE_BINARY_DIR}/libs/SDL/")
-
-		message(STATUS "Found SDL At ${SDL_PATH}" )
-	endif()
+	target_link_libraries(SDLlibs INTERFACE "${SDL2_LIBRARIES}")
 endif()
-
-
-
-
-
-
-#target_link_directories(SDLlibs INTERFACE "${SDL_PATH}/lib/x64")
-target_link_libraries(SDLlibs INTERFACE "${SDL2_LIBRARIES}")
-#target_include_directories(SDLlibs INTERFACE "${SDL_PATH}/include")
 
 add_subdirectory(src)
