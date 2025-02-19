@@ -33,7 +33,6 @@
 
 #include "foe.h"
 
-
 static int noSound = 0;
 
 // Initialize and load preference.
@@ -45,13 +44,15 @@ static void initFirst() {
   loadPreference();
   initBarragemanager();
   initAttractManager();
-  if ( !noSound ) initSound();
+  if (!noSound)
+    initSound();
   initGameStateFirst();
 }
 
 // Quit and save preference.
 void quitLast() {
-  if ( !noSound ) closeSound();
+  if (!noSound)
+    closeSound();
   savePreference();
   closeFoes();
   closeBarragemanager();
@@ -67,9 +68,7 @@ void initTitleStage(int stg) {
   initStageState(stg);
 }
 
-void initConfigStage() {
-    status = IN_CONFIG;
-}
+void initConfigStage() { status = IN_CONFIG; }
 
 void initTitle() {
   int stg;
@@ -100,10 +99,10 @@ void initGame(int stg) {
   initShots();
 
   initGameState(stg);
-  sn = stg%SAME_RANK_STAGE_NUM;
+  sn = stg % SAME_RANK_STAGE_NUM;
   initBackground(sn);
-  if ( sn == SAME_RANK_STAGE_NUM-1 ) {
-    playMusic(rand()%(SAME_RANK_STAGE_NUM-1));
+  if (sn == SAME_RANK_STAGE_NUM - 1) {
+    playMusic(rand() % (SAME_RANK_STAGE_NUM - 1));
   } else {
     playMusic(sn);
   }
@@ -114,58 +113,51 @@ void initGameover() {
   initGameoverAtr();
 }
 
-
 static double accumulator = 0.f;
 static double frame_time = 1.0 / 60.0;
 static double frameratio = 0.f;
 static void move() {
 
-    float framelen;
-    
-    int skipframe = 0;
+  float framelen;
 
-    int bullets = getAliveFoes();
+  int skipframe = 0;
 
-    int minbullets = 100;
-    int maxbullets = 700;
-    int bulletrange = maxbullets - minbullets;
-    if (bullets > maxbullets)
-    {
-        bullets = maxbullets;
-    }
-    else if (bullets < minbullets){
-        bullets = minbullets;
-    }
+  int bullets = getAliveFoes();
 
-   
-    float minslow = frame_time;
-    float maxslow = frame_time * 0.33;
+  int minbullets = 100;
+  int maxbullets = 700;
+  int bulletrange = maxbullets - minbullets;
+  if (bullets > maxbullets) {
+    bullets = maxbullets;
+  } else if (bullets < minbullets) {
+    bullets = minbullets;
+  }
 
-    //convert bullet count into 0-1 range
-    float range = (bullets - minbullets) / (float)bulletrange;
-   
-    framelen = lerp(minslow, maxslow, range);
+  float minslow = frame_time;
+  float maxslow = frame_time * 0.33;
 
-    accumulator += framelen;
-    if (accumulator > frame_time)
-    {
-        accumulator -= frame_time;
-        skipframe = 1;
-    }
-    else {
-        skipframe = 0;
-    }
+  // convert bullet count into 0-1 range
+  float range = (bullets - minbullets) / (float)bulletrange;
 
-    frameratio = accumulator / frame_time;
+  framelen = lerp(minslow, maxslow, range);
 
-    if ( bBulletTime == 0 )
-    {
-        frameratio = 1.f;
-        skipframe = 1;
-        accumulator = 0.f;
-    }
+  accumulator += framelen;
+  if (accumulator > frame_time) {
+    accumulator -= frame_time;
+    skipframe = 1;
+  } else {
+    skipframe = 0;
+  }
 
-   switch ( status ) {
+  frameratio = accumulator / frame_time;
+
+  if (bBulletTime == 0) {
+    frameratio = 1.f;
+    skipframe = 1;
+    accumulator = 0.f;
+  }
+
+  switch (status) {
   case TITLE:
     moveTitleMenu();
     moveBoss();
@@ -173,22 +165,20 @@ static void move() {
     moveBackground();
     break;
   case IN_CONFIG:
-      moveBackground();
-      moveConfigMenu();
-      break;
+    moveBackground();
+    moveConfigMenu();
+    break;
   case IN_GAME:
   case STAGE_CLEAR:
     moveShip();
-    if (skipframe)
-    {
-        moveBoss();
+    if (skipframe) {
+      moveBoss();
     }
-	moveLasers();
-	moveShots();
-   
-    if (skipframe)
-	{
-        moveFoes();
+    moveLasers();
+    moveShots();
+
+    if (skipframe) {
+      moveFoes();
     }
 
     moveFrags();
@@ -209,24 +199,24 @@ static void move() {
 }
 
 static void draw() {
-  switch ( status ) {
+  switch (status) {
   case TITLE:
     drawBackground();
     drawBoss();
-	drawBulletsWake();
-	drawBullets(1.0f);
-	startDrawBoards();
-	drawSideBoards();
-	drawTitle();
-	endDrawBoards();
+    drawBulletsWake();
+    drawBullets(1.0f);
+    startDrawBoards();
+    drawSideBoards();
+    drawTitle();
+    endDrawBoards();
     break;
   case IN_CONFIG:
-      drawBackground();
-	  startDrawBoards();
-	  drawSideBoards();
-      drawConfig();
-	  endDrawBoards();
-      break;
+    drawBackground();
+    startDrawBoards();
+    drawSideBoards();
+    drawConfig();
+    endDrawBoards();
+    break;
   case IN_GAME:
   case STAGE_CLEAR:
     drawBackground();
@@ -236,11 +226,11 @@ static void draw() {
     drawBulletsWake();
     drawFrags();
     drawShip();
-	drawBullets(frameratio);
-	startDrawBoards();
-	drawSideBoards();
-	drawBossState();
-	endDrawBoards();
+    drawBullets(frameratio);
+    startDrawBoards();
+    drawSideBoards();
+    drawBossState();
+    endDrawBoards();
     break;
   case GAMEOVER:
     drawBackground();
@@ -274,31 +264,34 @@ static void draw() {
 static int accframe = 0;
 
 static void usage(char *argv0) {
-  fprintf(stderr, "Usage: %s [-lowres] [-nosound] [-fullscreen] [-reverse] [-nowait] [-accframe]\n", argv0);
+  fprintf(stderr,
+          "Usage: %s [-lowres] [-nosound] [-fullscreen] [-reverse] [-nowait] "
+          "[-accframe]\n",
+          argv0);
 }
 
 static void parseArgs(int argc, char *argv[]) {
   int i;
-  for ( i=1 ; i<argc ; i++ ) {
-    if ( strcmp(argv[i], "-lowres") == 0 ) {
+  for (i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "-lowres") == 0) {
       lowres = 1;
-    } else if ( strcmp(argv[i], "-nosound") == 0 ) {
+    } else if (strcmp(argv[i], "-nosound") == 0) {
       noSound = 1;
-    } else if ( strcmp(argv[i], "-fullscreen") == 0 ) {
+    } else if (strcmp(argv[i], "-fullscreen") == 0) {
       windowMode = 0;
-    } else if ( strcmp(argv[i], "-reverse") == 0 ) {
+    } else if (strcmp(argv[i], "-reverse") == 0) {
       buttonReversed = 1;
     }
     /* else if ( (strcmp(argv[i], "-brightness") == 0) && argv[i+1] ) {
       i++;
       brightness = (int)atoi(argv[i]);
       if ( brightness < 0 || brightness > 256 ) {
-	brightness = DEFAULT_BRIGHTNESS;
+        brightness = DEFAULT_BRIGHTNESS;
       }
-      }*/ 
-    else if ( strcmp(argv[i], "-nowait") == 0 ) {
+      }*/
+    else if (strcmp(argv[i], "-nowait") == 0) {
       nowait = 1;
-    } else if ( strcmp(argv[i], "-accframe") == 0 ) {
+    } else if (strcmp(argv[i], "-accframe") == 0) {
       accframe = 1;
     } else {
       usage(argv[0]);
@@ -306,7 +299,7 @@ static void parseArgs(int argc, char *argv[]) {
     }
   }
 }
-//#include <imgui.h>
+// #include <imgui.h>
 void config_window() {
   //  return ;
   //  ImGui::Begin("Config");
@@ -318,77 +311,58 @@ void config_window() {
   // ImGui::End();
 }
 
-
-
 int interval = INTERVAL_BASE;
 int tick = 0;
 static int pPrsd = 1;
 
-void imgui_newframe(SDL_Window* window);
-#ifndef PLATFORM_NX
+void imgui_newframe(SDL_Window *window);
 #ifdef _WIN32
 #include <Windows.h>
-#endif
-#ifdef USE_LPP
-#include "LPP_API.h"
-#endif
 #endif
 int main(int argc, char *argv[]) {
   int done = 0;
   long prvTickCount = 0;
-  int i; 
+  int i;
   SDL_Event event;
   long nowTick;
   long oldTick;
   int frame;
   int buttons;
-#ifndef PLATFORM_NX 
-#ifdef USE_LPP
-  HMODULE livePP = lpp::lppLoadAndRegister(L"D:/Original_NvmeK/Programming/rrootage/LivePP", "Sample");
 
-  lpp::lppEnableCallingModuleSync(livePP);
-  lpp::lppInstallExceptionHandler(livePP);
-  #endif
-#endif
   windowMode = 1;
   parseArgs(argc, argv);
 
   initDegutil();
-  initSDL(argc,argv);
+  initSDL(argc, argv);
   initFirst();
   initTitle();
   oldTick = SDL_GetTicks();
-  while ( !done ) {
-#ifndef PLATFORM_NX
-#ifdef USE_LPP
-      lpp::lppSyncPoint(livePP);
-      #endif
-#endif     
-      
+  while (!done) {
 
-    keys = const_cast<Uint8*>(SDL_GetKeyboardState(NULL));
+    keys = const_cast<Uint8 *>(SDL_GetKeyboardState(NULL));
     buttons = getButtonState();
-    
 
     refresh_touch_input();
 
     config_window();
 
-    if ( keys[SDL_GetScancodeFromKey(SDLK_ESCAPE)] == SDL_PRESSED /* || event.type == SDL_QUIT*/) done = 1;
-    if ( buttons & PAD_BUTTONP ) {
-      if ( !pPrsd ) {
-	if ( status == IN_GAME ) {
-	  status = PAUSE;
-	} else if ( status == PAUSE ) {
-	  status = IN_GAME;
-	}
+    if (keys[SDL_GetScancodeFromKey(SDLK_ESCAPE)] ==
+        SDL_PRESSED /* || event.type == SDL_QUIT*/)
+      done = 1;
+    if (buttons & PAD_BUTTONP) {
+      if (!pPrsd) {
+        if (status == IN_GAME) {
+          status = PAUSE;
+        } else if (status == PAUSE) {
+          status = IN_GAME;
+        }
       }
       pPrsd = 1;
     } else {
       pPrsd = 0;
-    }frame = 1;
+    }
+    frame = 1;
 
-    
     move();
     tick++;
 
@@ -398,36 +372,20 @@ int main(int argc, char *argv[]) {
     drawGLSceneEnd();
     swapGLScene();
 
-	accframe = 0;
+    accframe = 0;
 
-#ifndef PLATFORM_NX
-    //delay for vsync. Not very accurate
-    while (1)
-    {
-        nowTick = SDL_GetTicks();
-        int delta = nowTick - oldTick;
-        if (delta < interval)
-        {
-            SDL_Delay(1);
-        }
-        else {
-            break;
-        }
+    // delay for vsync. Not very accurate
+    while (1) {
+      nowTick = SDL_GetTicks();
+      int delta = nowTick - oldTick;
+      if (delta < interval) {
+        SDL_Delay(1);
+      } else {
+        break;
+      }
     }
-#else
-    //we can rely on vsync on switch so no delays
-    nowTick = SDL_GetTicks();
-#endif
     oldTick = nowTick;
-
-    
   }
   quitLast();
-#ifndef PLATFORM_NX
-#ifdef USE_LPP
-  lpp::lppShutdown(livePP);
-  ::FreeLibrary(livePP);
-#endif
-#endif
   return 0;
 }
