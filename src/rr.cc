@@ -9,7 +9,16 @@
  *
  * @version $Revision: 1.4 $
  */
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <SDL2/SDL.h>
+
+#else
 #include "SDL.h"
+
+#endif
+
 #include "SDL_keyboard.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -316,19 +325,79 @@ int tick = 0;
 static int pPrsd = 1;
 
 void imgui_newframe(SDL_Window *window);
+
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-int main(int argc, char *argv[]) {
-  int done = 0;
-  long prvTickCount = 0;
-  int i;
-  SDL_Event event;
-  long nowTick;
-  long oldTick;
-  int frame;
-  int buttons;
 
+int done = 0;
+long prvTickCount = 0;
+int i;
+SDL_Event event;
+long nowTick;
+long oldTick;
+int frame;
+int buttons;
+
+static void mainloop() {
+  if (done) {
+    quitLast();
+#ifdef __EMSCRIPTEN__
+    emscripten_cancel_main_loop();
+#else
+    exit(0);
+#endif
+  }
+
+  keys = const_cast<Uint8 *>(SDL_GetKeyboardState(NULL));
+  buttons = getButtonState();
+
+  refresh_touch_input();
+
+  config_window();
+
+  if (keys[SDL_GetScancodeFromKey(SDLK_ESCAPE)] ==
+      SDL_PRESSED /* || event.type == SDL_QUIT*/)
+    done = 1;
+  if (buttons & PAD_BUTTONP) {
+    if (!pPrsd) {
+      if (status == IN_GAME) {
+        status = PAUSE;
+      } else if (status == PAUSE) {
+        status = IN_GAME;
+      }
+    }
+    pPrsd = 1;
+  } else {
+    pPrsd = 0;
+  }
+  frame = 1;
+
+  move();
+  tick++;
+
+  drawGLSceneStart();
+  draw();
+
+  drawGLSceneEnd();
+  swapGLScene();
+
+  accframe = 0;
+
+  // delay for vsync. Not very accurate
+  while (1) {
+    nowTick = SDL_GetTicks();
+    int delta = nowTick - oldTick;
+    if (delta < interval) {
+      SDL_Delay(1);
+    } else {
+      break;
+    }
+  }
+  oldTick = nowTick;
+}
+
+int main(int argc, char *argv[]) {
   windowMode = 1;
   parseArgs(argc, argv);
 
@@ -336,56 +405,16 @@ int main(int argc, char *argv[]) {
   initSDL(argc, argv);
   initFirst();
   initTitle();
+
   oldTick = SDL_GetTicks();
-  while (!done) {
 
-    keys = const_cast<Uint8 *>(SDL_GetKeyboardState(NULL));
-    buttons = getButtonState();
-
-    refresh_touch_input();
-
-    config_window();
-
-    if (keys[SDL_GetScancodeFromKey(SDLK_ESCAPE)] ==
-        SDL_PRESSED /* || event.type == SDL_QUIT*/)
-      done = 1;
-    if (buttons & PAD_BUTTONP) {
-      if (!pPrsd) {
-        if (status == IN_GAME) {
-          status = PAUSE;
-        } else if (status == PAUSE) {
-          status = IN_GAME;
-        }
-      }
-      pPrsd = 1;
-    } else {
-      pPrsd = 0;
-    }
-    frame = 1;
-
-    move();
-    tick++;
-
-    drawGLSceneStart();
-    draw();
-
-    drawGLSceneEnd();
-    swapGLScene();
-
-    accframe = 0;
-
-    // delay for vsync. Not very accurate
-    while (1) {
-      nowTick = SDL_GetTicks();
-      int delta = nowTick - oldTick;
-      if (delta < interval) {
-        SDL_Delay(1);
-      } else {
-        break;
-      }
-    }
-    oldTick = nowTick;
+#ifdef __EMSCRIPTEN__
+  emscripten_set_main_loop(mainloop, 0, 1);
+#else
+  while (1) {
+    mainloop();
   }
-  quitLast();
+#endif
+
   return 0;
 }
