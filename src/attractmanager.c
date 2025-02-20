@@ -71,20 +71,11 @@ void loadPreference() {
   FILE *fp;
   int i, j;
   int version;
-#ifdef PLATFORM_NX
 
-  initHiScore();
-
-  load_game(&hiScore);
-  
-  return;
-
-#else
   if (NULL == (fp = fopen(PREF_FILE, "rb"))) {
   initHiScore();
   return;
   }
-#endif
   
   version = getw(fp);
   if ( version != VERSION_NUM ) {
@@ -104,7 +95,6 @@ void loadPreference() {
 
 // Save preference.
 void savePreference() {
-#ifndef PLATFORM_NX
   FILE *fp;
   int i, j;
   if ( NULL == (fp = fopen(PREF_FILE,"wb")) ) return;
@@ -118,10 +108,6 @@ void savePreference() {
   putw(hiScore.stage, fp);
   putw(hiScore.mode, fp);
   fclose(fp);
-#else
-
-    save_game(&hiScore);
-#endif
 }
 
 static void gotoNextScene() {

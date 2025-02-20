@@ -12,9 +12,6 @@
 extern "C" {
 #include "SDL.h"
 #include <sys/types.h>
-#ifdef PLATFORM_NX
-#include <dirent.h>
-#endif
 #include "genmcr.h"
 #include "brgmng_mtd.h"
 }
@@ -31,7 +28,6 @@ static const char *BARRAGE_DIR_NAME[BARRAGE_TYPE_NUM] = {
 #include <filesystem>
 
 static int readBulletMLFiles(const char *dirPath, Barrage brg[]) {
-#ifndef PLATFORM_NX
 	namespace fs = std::filesystem;
 	int i = 0;
 
@@ -44,32 +40,6 @@ static int readBulletMLFiles(const char *dirPath, Barrage brg[]) {
 		}
 	}
 	return i;
-
-#else
-	DIR* dp;
-	struct dirent* dir;
-	int i = 0;
-	char fileName[256];
-	char dirName[256];
-	strcpy(dirName, "Assets:/");
-	strcat(dirName, dirPath);
-	if ((dp = opendir(dirName)) == NULL) {
-		fprintf(stderr, "Can't open directory: %s\n", dirName);
-		exit(1);
-	}
-	while ((dir = readdir(dp)) != NULL) {
-		if (strcmp(strrchr(dir->d_name, '.'), ".xml") != 0) continue; // Read .xml files.
-		strcpy(fileName, dirName);
-		strcat(fileName, "/");
-		strncat(fileName, dir->d_name, sizeof(fileName) - strlen(fileName) - 1);
-		brg[i].bulletml = new BulletMLParserTinyXML(fileName);
-		brg[i].bulletml->build(); i++;
-		printf("%s\n", fileName);
-	}
-	closedir(dp);
-	return i;
-
-#endif
 }
 
 void initBarragemanager() {

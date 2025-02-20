@@ -27,11 +27,7 @@
 #include "letterrender.h"
 #include "boss_mtd.h"
 
-#ifdef PLATFORM_NX
-#include "swich.h"
-#else
 #include "pcplatform.h"
-#endif
 
 extern void imgui_input(SDL_Event* event);
 extern void imgui_newframe(SDL_Window* window);
@@ -112,11 +108,7 @@ void loadGLTexture(const char *fileName, GLuint *texture) {
   SDL_Surface *surface;
 
   char name[64];
-#ifdef PLATFORM_NX
-  strcpy(name, "Assets:/images/");
-#else
   strcpy(name, "resources/images/");
-#endif
   strcat(name, fileName);
   surface = SDL_LoadBMP(name);
   if ( !surface ) {

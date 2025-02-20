@@ -19,10 +19,6 @@
 
 #endif
 
-#ifndef PLATFORM_NX
-//#include <windows.h>
-#endif
-
 #ifdef __EMSCRIPTEN__
 #include <GL/gl.h>
 #else

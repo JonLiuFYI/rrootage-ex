@@ -58,11 +58,7 @@ static void loadSounds() {
   char name[64];
 
   for (i = 0; i < MUSIC_NUM; i++) {
-#ifdef PLATFORM_NX
-	  strcpy(name, "Assets:/sounds/");
-#else
 	  strcpy(name, "resources/sounds/");
-#endif
 	  strcat(name, musicFileName[i]);
 
 	  music[i] = createAudio(name,1, SDL_MIX_MAXVOLUME/3);
@@ -72,11 +68,7 @@ static void loadSounds() {
 	  }
   }
   for ( i=0 ; i<CHUNK_NUM ; i++ ) {
-#ifdef PLATFORM_NX
-	  strcpy(name, "Assets:/sounds/");
-#else
 	  strcpy(name, "resources/sounds/");
-#endif
     strcat(name, chunkFileName[i]);
 
     chunk[i] = createAudio(name, 0, SDL_MIX_MAXVOLUME);
